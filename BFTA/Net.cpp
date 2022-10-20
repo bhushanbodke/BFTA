@@ -70,7 +70,6 @@ SOCKET server(bool* IsConnected) {
 		*IsConnected = true;
 		std::cout << "accept sucess" << std::endl;
 	}
-
 	char host[NI_MAXHOST];
 	char service[NI_MAXSERV];
 
@@ -84,7 +83,7 @@ SOCKET server(bool* IsConnected) {
 	else
 	{
 		inet_ntop(AF_INET, &cli_address.sin_addr, host, NI_MAXHOST);
-		std::cout << "connectd on port " << ntohs(cli_address.sin_port) << std::endl;
+		std::cout << "connected on port " << ntohs(cli_address.sin_port) << std::endl;
 	}
 	return cli_soc;
 }

@@ -13,6 +13,7 @@
 
 
 
+
 std::string getFileName(const char* file_path)
 {
 	std::experimental::filesystem::path p (file_path);
@@ -59,6 +60,7 @@ int main() {
 	std::string fileName;
 	SOCKET in_soc = NULL;
 	FILE* fp = NULL;
+	long int file_size;
 	int is_send = 0;
 
 	//--------------------------- Main Loop ---------------------------
@@ -120,7 +122,6 @@ int main() {
 			//get File name form path 
 			if (file_path != "") {
 				errno_t err = fopen_s(&fp, file_path, "rb");
-				std::cout << fp << std::endl;
 				if (err != 0) {
 					std::cerr << "[-] Error in reading the file" << std::endl;
 					return 1;
@@ -129,8 +130,14 @@ int main() {
 				{
 					std::cout << "[+] File opend" << std::endl;
 				}
+				// Get File Size
+				fseek(fp, 0L, SEEK_END);
+				file_size = ftell(fp);
+
+				rewind(fp);
+				// Get File Name 
 				fileName = getFileName(file_path);
-				std::cout << fileName.c_str() << std::endl;
+				std::cout << fileName << std::endl;
 				SelectFile = true;
 			}
 		};
@@ -145,7 +152,7 @@ int main() {
 		if(ImGui::Button("SendFile")&&SelectFile)
 		{
 			in_soc = t1.get();
-			t2 = std::async(std::launch::async , SendFile,fp,in_soc,&SendData,&is_send);
+			t2 = std::async(std::launch::async , SendFile,fp,in_soc,&SendData,&is_send, fileName,file_size);
 			std::cout << "SendFile " << send << std::endl;
 		}
 		ImGui::Dummy(ImVec2(0.0f, spacing));
@@ -157,9 +164,13 @@ int main() {
 		if (is_send == 1) {
 			ImGui::TextColored(ImVec4(0.027f,0.988f,0.11f,1.0f), "File Send Succesfully");
 		}
+		ImGui::Dummy(ImVec2(0.0f, spacing));
 		if (is_send == 2) {
 			ImGui::Text("some error in sending");
 
+		}
+		if (ImGui::Button("Close Connection")) {
+			WSACleanup();
 		}
 
 
